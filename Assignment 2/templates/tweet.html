@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitter Interface</title>
+    <style>
+        body {
+            font-family: 'Whitney', sans-serif;
+            background-color: #36393F;
+            color: #DCDDDE;
+            padding: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: #40444B;
+            color: #DCDDDE;
+            border: none;
+            border-radius: 5px;
+            resize: none;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #7289DA;
+            color: #FFF;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #677BC4;
+        }
+
+        #tweet_response {
+            padding: 15px;
+            background-color: #2F3136;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        #tweet_response p {
+            margin: 0;
+        }
+    </style>
+    <script>
+        async function postTweet() {
+            const tweetText = document.getElementById('tweet_text').value;
+            const response = await fetch('/tweet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `tweet_text=${encodeURIComponent(tweetText)}`
+            });
+
+            const data = await response.json();
+            document.getElementById('tweet_response').innerHTML = `<p>${data.message}</p><p id="tweet_id">Tweet ID: ${data.tweet_id}</p>`;
+        }
+
+        function deleteTweet() {
+            const tweetId = document.getElementById('tweet_id').textContent.split(": ")[1]; // Get the actual ID
+            fetch(`/delete-tweet/${tweetId}`, {
+                method: 'DELETE',
+            }).then(response => response.json()).then(data => {
+                document.getElementById('tweet_response').innerHTML = data.message;
+            });
+        }
+    </script>
+</head>
+<body>
+    <textarea id="tweet_text" rows="4" placeholder="Type your tweet here..."></textarea><br><br>
+    <button onclick="postTweet()">Post Tweet</button>
+    <button onclick="deleteTweet()">Delete Last Tweet</button>
+    <br><br>
+    <div id="tweet_response">
+        <!-- The tweet response will appear here -->
+    </div>
+</body>
+</html>
